@@ -166,7 +166,7 @@
                 renderCode: "<h1>Welcome</h1>"
             },
             {
-                q: "2. Create a paragraph that says 'I love coding'.",
+                q: "2. Create a paragraph (p) that says 'I love coding'.",
                 checkString: "<p>i love coding</p>",
                 renderCode: "<p>I love coding</p>"
             },
@@ -181,7 +181,7 @@
                 renderCode: "<label>Username: </label><input type='text' placeholder='Enter name'>"
             },
             {
-                q: "5. Make the word 'Bold' bold using tag.",
+                q: "5. Make the word 'Bold' bold using the <b> tag.",
                 checkString: "<b>bold</b>",
                 renderCode: "This is normal text, this is <b>Bold</b> text."
             },
@@ -195,11 +195,12 @@
                 checkString: "<h2>subheading</h2>",
                 renderCode: "<h2>Subheading</h2>"
             },
-            // --- IMAGE QUESTION (Must have image.png in folder) ---
+            // --- IMAGE QUESTION ---
             {
                 q: "8. Display the local image named 'image.png'.",
                 checkString: "<img src=\"image.png\">",
-                renderCode: "<h2>Look!</h2><img src='image.png' alt='If image.png is in the folder, it shows here!' style='max-width:300px; border: 5px solid gold;'>"
+                // We leave 'image.png' here, but the JS function below will fix the link!
+                renderCode: "<h2>Look!</h2><img src='image.png' alt='Image not found' style='max-width:300px; border: 5px solid gold;'>"
             },
             {
                 q: "9. Create a Horizontal Rule (line).",
@@ -227,7 +228,6 @@
         const scoreDisplay = document.getElementById('score-display');
 
         function loadQuestion() {
-            // Check if finished
             if (currentIdx >= questions.length) {
                 document.querySelector('.container').innerHTML = `
                     <h1 style="text-align:center; color:#4CAF50;">🎉 Quiz Completed!</h1>
@@ -237,21 +237,15 @@
                 return;
             }
 
-            // Update UI
             qText.innerText = questions[currentIdx].q;
             qNum.innerText = currentIdx + 1;
             userInput.value = "";
             userInput.disabled = false;
             userInput.style.borderColor = "#3c3c3c";
-            
-            // Hide Feedback
             feedbackArea.style.display = "none";
             feedbackArea.className = "feedback-msg";
-            
-            // Buttons
             submitBtn.style.display = "block";
             nextBtn.style.display = "none";
-            
             progressBar.style.width = ((currentIdx) / questions.length * 100) + "%";
             userInput.focus();
         }
@@ -260,46 +254,40 @@
             const userVal = userInput.value.trim().toLowerCase().replace(/\s+/g, ' '); 
             const correctVal = questions[currentIdx].checkString;
 
-            // LOCK INPUT (No retry allowed)
             userInput.disabled = true;
             submitBtn.style.display = "none";
             nextBtn.style.display = "block";
 
             if (userVal.includes(correctVal)) {
-                // --- CORRECT ---
                 score += 10;
                 scoreDisplay.innerText = score;
-                
-                userInput.style.borderColor = "#4CAF50"; // Green
+                userInput.style.borderColor = "#4CAF50"; 
                 feedbackArea.innerHTML = "✅ Correct! Opening result in new tab...";
                 feedbackArea.classList.add("success");
                 feedbackArea.style.display = "block";
-
-                // Open New Tab
+                
                 openResultTab(questions[currentIdx].renderCode);
             } else {
-                // --- WRONG ---
-                // Score stays +0
-                userInput.style.borderColor = "#f44336"; // Red
+                userInput.style.borderColor = "#f44336"; 
                 feedbackArea.innerHTML = `❌ Wrong. The correct code was: <br><code style='color:#fff'>${escapeHtml(questions[currentIdx].checkString)}</code>`;
                 feedbackArea.classList.add("error");
                 feedbackArea.style.display = "block";
-                
-                // We DO NOT open the new tab on wrong answers
             }
         }
 
-        // Helper to display HTML tags as text in the error message
         function escapeHtml(text) {
-            return text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
         function openResultTab(htmlContent) {
+            // --- THE FIX IS HERE ---
+            // 1. Calculate the FULL URL of the image based on where the user is currently located.
+            // This works for Localhost AND GitHub Pages automatically.
+            const fullImageURL = new URL('image.png', window.location.href).href;
+
+            // 2. Replace the simple 'image.png' in the code with the FULL URL
+            const fixedContent = htmlContent.replace("src='image.png'", `src='${fullImageURL}'`);
+
             const fullPage = `
                 <!DOCTYPE html>
                 <html>
@@ -316,7 +304,7 @@
                     <div class="card">
                         <h2>Correct! Result Preview:</h2>
                         <div class="preview-area">
-                            ${htmlContent}
+                            ${fixedContent} 
                         </div>
                         <p style="margin-top:20px; color:#888;">Close this tab to continue the quiz.</p>
                     </div>
@@ -334,9 +322,9 @@
             loadQuestion();
         }
 
-        // Initialize
         loadQuestion();
-
     </script>
+
 </body>
+
 </html>
