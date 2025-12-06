@@ -157,7 +157,7 @@
         </div>
     </div>
 
-    <script>
+<script>
         // --- QUIZ DATA ---
         const questions = [
             {
@@ -195,12 +195,12 @@
                 checkString: "<h2>subheading</h2>",
                 renderCode: "<h2>Subheading</h2>"
             },
-            // --- IMAGE QUESTION ---
+            // --- UPDATED IMAGE QUESTION ---
+            // We ask them to type "cat.jpg", but we SHOW them the real Canva link!
             {
-                q: "8. Display the local image named 'image.png'.",
-                checkString: "<img src=\"image.png\">",
-                // We leave 'image.png' here, but the JS function below will fix the link!
-                renderCode: "<h2>Look!</h2><img src='image.png' alt='Image not found' style='max-width:300px; border: 5px solid gold;'>"
+                q: "8. Create an image tag with src='cat.jpg'.",
+                checkString: "<img src=\"cat.jpg\">",
+                renderCode: "<h2>Meow!</h2><img src='https://marketplace.canva.com/8-1Kc/MAGoQJ8-1Kc/1/tl/canva-ginger-cat-with-paws-raised-in-air-MAGoQJ8-1Kc.jpg' alt='Cute Cat' style='max-width:300px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);'>"
             },
             {
                 q: "9. Create a Horizontal Rule (line).",
@@ -280,14 +280,6 @@
         }
 
         function openResultTab(htmlContent) {
-            // --- THE FIX IS HERE ---
-            // 1. Calculate the FULL URL of the image based on where the user is currently located.
-            // This works for Localhost AND GitHub Pages automatically.
-            const fullImageURL = new URL('image.png', window.location.href).href;
-
-            // 2. Replace the simple 'image.png' in the code with the FULL URL
-            const fixedContent = htmlContent.replace("src='image.png'", `src='${fullImageURL}'`);
-
             const fullPage = `
                 <!DOCTYPE html>
                 <html>
@@ -298,13 +290,14 @@
                         .card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; }
                         h2 { color: #4CAF50; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
                         .preview-area { margin-top: 20px; padding: 20px; border: 2px dashed #bbb; background: #fafafa; }
+                        img { max-width: 100%; height: auto; }
                     </style>
                 </head>
                 <body>
                     <div class="card">
                         <h2>Correct! Result Preview:</h2>
                         <div class="preview-area">
-                            ${fixedContent} 
+                            ${htmlContent}
                         </div>
                         <p style="margin-top:20px; color:#888;">Close this tab to continue the quiz.</p>
                     </div>
@@ -328,3 +321,4 @@
 </body>
 
 </html>
+
